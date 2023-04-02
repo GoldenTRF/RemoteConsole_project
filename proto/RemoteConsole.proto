@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package RemoteConsole;
+
+
+// ====================================================== SERVICES ====================================================
+
+service AuthorizationService
+{
+	// the first connection between server and client. Exist to accept the client connection to the server
+	rpc primaryConnection	(Empty) returns (AuthorizationReply) {}
+
+	// Second authorization between cleint and server. Exist to check the client login data to server can accept functions for client
+	rpc clientAuthorization (AuthorizationRequest)	returns (AuthorizationReply) {}
+}
+
+service EventDetectionService
+{
+	// Detection of mouse and keyboard events from client side 
+	rpc keyDetection	(KeyEventMess) returns (Empty){}
+	rpc mouseDetection	(MouseEventMess) returns (Empty){}
+	rpc clientDisconnection (Empty) returns (Empty) {}
+
+	rpc connectionAlive (Empty) returns (Empty) {}
+}
+
+service ConsoleControllService
+{
+	// The server send to the client console screen buffer
+	rpc SendCharInfo (Empty) returns (stream CharChank) {}
+	rpc CheckBuffer (Empty) returns (Empty) {}
+	rpc GetCirsorPosition(Empty) returns (CursorMess) {}
+}
+
+// =======================================================================================================================
+
+
+// ====================================================== AUTHORIZATION MESSAGES =========================================
+message AuthorizationRequest
+{
+	string clientPassword = 1;
+	string clientLogin = 2;
+}
+
+message AuthorizationReply
+{
+	bool isSuccessful = 1;
+}
+
+
+// ====================================================== CONSILE CONTROLL MESSAGES ======================================
+message CharChank
+{
+	bytes chunk = 1;
+}
+
+message CursorMess
+{
+	int32 cursorX = 1;
+	int32 cursorY = 2;
+}
+
+
+// ====================================================== EVENT DETECTION MESSAGES =======================================
+message KeyEventMess
+{
+	bool keyDown = 1;
+	uint32 wRepCount = 2;
+	uint32 virtualKeyCode = 3;
+	uint32 virtualScanCode = 4;
+	uint32 controlKeyState = 5;
+
+	uint32 unicode_char = 6;
+    uint32 ascii_char = 7;
+}
+
+message MouseEventMess
+{
+	uint32 mouseX = 1;
+	uint32 mouseY = 2;
+	uint32 buttonState = 3;
+	uint32 controlKeyState = 4;
+	uint32 eventFlag = 5;
+}
+
+// =======================================================================================================================
+
+message Empty{}
